@@ -2,6 +2,7 @@ extends Control
 
 const LoomPlay = preload("res://scripts/play.gd")
 const BoardScript = preload("res://scripts/board.gd")
+const LevelsBlob = preload("res://scripts/levels_blob.gd")
 
 const BG := Color("14110e")
 const SURFACE := Color("241c16")
@@ -37,14 +38,45 @@ var next_button: Button
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	_load_levels()
+	_fit_to_window()
+	get_tree().root.size_changed.connect(_fit_to_window)
+	var background := ColorRect.new()
+	background.name = "Desk"
+	background.color = BG
+	background.set_anchors_preset(Control.PRESET_FULL_RECT)
+	background.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(background)
+	var err := _load_levels()
+	if err != "":
+		_show_boot_error(err)
+		return
 	_load_save()
 	_build()
 	_show_home()
 
 
+func _fit_to_window() -> void:
+	var rect := get_viewport_rect()
+	position = Vector2.ZERO
+	size = rect.size
+
+
+func _show_boot_error(message: String) -> void:
+	var label := Label.new()
+	label.text = message
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.offset_left = 28
+	label.offset_top = 72
+	label.offset_right = -28
+	label.offset_bottom = -72
+	label.add_theme_color_override("font_color", FG)
+	label.add_theme_font_size_override("font_size", 22)
+	add_child(label)
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if not play.visible:
+	if play == null or not play.visible:
 		return
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_Z:
@@ -55,9 +87,13 @@ func _unhandled_input(event: InputEvent) -> void:
 			_show_home()
 
 
-func _load_levels() -> void:
-	var text := FileAccess.get_file_as_string("res://data/levels.json")
+func _load_levels() -> String:
+	var text := LevelsBlob.text()
+	if text == "":
+		text = FileAccess.get_file_as_string("res://data/levels.json")
 	var data = JSON.parse_string(text)
+	if typeof(data) != TYPE_DICTIONARY or not data.has("levels"):
+		return "The puzzles didn’t come along with this install. Replace the project with the latest download, then export the APK again."
 	for raw in data["levels"]:
 		var mods: Array = []
 		for row in raw["mods"]:
@@ -86,6 +122,9 @@ func _load_levels() -> void:
 			"ends": ends,
 			"solution": solution,
 		})
+	if levels.is_empty():
+		return "The puzzles didn’t come along with this install. Replace the project with the latest download, then export the APK again."
+	return ""
 
 
 func _parse_mod(token: String) -> Dictionary:
