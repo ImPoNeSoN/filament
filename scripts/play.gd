@@ -106,7 +106,7 @@ static func step_allowed(level: Dictionary, pair: int, path: Array, to: Vector2i
 	if index_of(path, to) >= 0:
 		return false
 	var own: Array = level["ends"][pair]
-	var hits_own := to == own[0] or to == own[1]
+	var hits_own: bool = bool(to == own[0]) or bool(to == own[1])
 	if hits_own:
 		if to == path[0]:
 			return false
@@ -199,7 +199,8 @@ static func _path_complete(level: Dictionary, pair: int, path: Array) -> bool:
 
 
 static func evaluate(level: Dictionary, paths: Array) -> Dictionary:
-	var total := level["ends"].size()
+	var ends: Array = level["ends"]
+	var total: int = ends.size()
 	var seen := {}
 	var linked := 0
 	var overlap := false
@@ -228,7 +229,7 @@ static func evaluate(level: Dictionary, paths: Array) -> Dictionary:
 			if mod["k"] == "bead" and not seen.has(key):
 				beads_left += 1
 	var coverage: bool = (not level["fill"]) or open_left == 0
-	var solved := (not overlap) and linked == total and coverage and beads_left == 0
+	var solved: bool = (not overlap) and linked == total and coverage and beads_left == 0
 	return {
 		"solved": solved,
 		"linked": linked,
@@ -252,7 +253,7 @@ static func apply_hint(level: Dictionary, paths: Array):
 				prefix += 1
 		if prefix == oriented.size() and current.size() == oriented.size():
 			continue
-		var length := mini(2, oriented.size()) if current.is_empty() else mini(oriented.size(), prefix + 1)
+		var length: int = int(mini(2, oriented.size())) if current.is_empty() else int(mini(oriented.size(), prefix + 1))
 		var painted: Array = oriented.slice(0, length)
 		var unchanged := painted.size() == current.size()
 		if unchanged:
