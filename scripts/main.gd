@@ -437,7 +437,7 @@ func _fill_atlas() -> void:
 		for i in 10:
 			var id := chapter * 10 + i + 1
 			var stars := int(save["cleared"].get(str(id), 0))
-			var unlocked := id == 1 or save["cleared"].has(str(id - 1))
+			var unlocked: bool = id == 1 or bool(save["cleared"].has(str(id - 1)))
 			var label := str(id)
 			if stars > 0:
 				label += "  " + str(stars)
