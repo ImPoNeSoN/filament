@@ -25,4 +25,14 @@ Tap or drag a sigil. Undo, Hint, and Reset sit under the board. A clean solve is
 4. Choose **Import & Edit**.
 5. Press **F5** or the Play button.
 
-The window is phone-shaped (390×844). Mouse drag in the editor matches a finger on a phone. To put it on a device, use **Project → Export** and add the Android or iOS template from Godot’s export menu.
+The window is phone-shaped (390×844). Mouse drag in the editor matches a finger on a phone.
+
+## Put it on a phone
+
+1. **Editor → Manage Export Templates → Download and Install** (the templates must match your Godot version).
+2. Install JDK 17 and the Android SDK, then point Godot at them under **Editor → Editor Settings → Export → Android**.
+3. **Project → Install Android Build Template**.
+4. **Project → Export… → Add… → Android**. Export format **APK**, not AAB.
+5. **Export Project** (a debug keystore is enough for testing). Copy the APK to the phone and open it.
+
+Android must use the Compatibility renderer. This project sets both **Rendering Method** and **Rendering Method.mobile** to `gl_compatibility`. If a phone build is a blank screen, those two were still on Vulkan: switch them under **Project → Project Settings → Rendering → Renderer**, then export the APK again. The 100 puzzles are stored in `scripts/levels_blob.gd` so they are packed into the APK.
